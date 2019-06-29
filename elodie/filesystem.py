@@ -172,11 +172,11 @@ class FileSystem(object):
                     if metadata[part]:
                         this_value = os.path.splitext(metadata['original_name'])[0]
                     else:
-                        # We didn't always store original_name so this is 
+                        # We didn't always store original_name so this is
                         #  for backwards compatability.
-                        # We want to remove the hardcoded date prefix we used 
+                        # We want to remove the hardcoded date prefix we used
                         #  to add to the name.
-                        # This helps when re-running the program on file 
+                        # This helps when re-running the program on file
                         #  which were already processed.
                         this_value = re.sub(
                             '^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-',
@@ -573,7 +573,7 @@ class FileSystem(object):
             else:
                 compatability._copyfile(_file, dest_path)
 
-            # Set the utime based on what the original file contained 
+            # Set the utime based on what the original file contained
             #  before we made any changes.
             # Then set the utime on the destination file based on metadata.
             os.utime(_file, (stat_info_original.st_atime, stat_info_original.st_mtime))

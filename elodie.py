@@ -33,8 +33,8 @@ from elodie.result import Result
 FILESYSTEM = FileSystem()
 
 
-def import_file(_file, destination, album_from_folder, trash, allow_duplicates):
-    
+def import_file(_file, destination, album_from_folder, trash, allow_duplicates, delete):
+
     _file = _decode(_file)
     destination = _decode(destination)
 
@@ -67,6 +67,10 @@ def import_file(_file, destination, album_from_folder, trash, allow_duplicates):
         log.all('%s -> %s' % (_file, dest_path))
     if trash:
         send2trash(_file)
+    elif delete:
+        os.remove(_file)
+
+
 
     return dest_path or None
 
@@ -86,6 +90,8 @@ def import_file(_file, destination, album_from_folder, trash, allow_duplicates):
               help='Import the file even if it\'s already been imported.')
 @click.option('--debug', default=False, is_flag=True,
               help='Override the value in constants.py with True.')
+@click.option('--delete', default=False, is_flag=True,
+              help='After copying files, delete old files.')
 @click.argument('paths', nargs=-1, type=click.Path())
 def _import(destination, source, file, album_from_folder, trash, allow_duplicates, debug, paths):
     """Import files or directories by reading their EXIF and organizing them accordingly.
@@ -113,7 +119,7 @@ def _import(destination, source, file, album_from_folder, trash, allow_duplicate
 
     for current_file in files:
         dest_path = import_file(current_file, destination, album_from_folder,
-                    trash, allow_duplicates)
+                    trash, allow_duplicates, delete)
         result.append((current_file, dest_path))
         has_errors = has_errors is True or not dest_path
 
@@ -138,7 +144,7 @@ def _generate_db(source, debug):
     if not os.path.isdir(source):
         log.error('Source is not a valid directory %s' % source)
         sys.exit(1)
-        
+
     db = Db()
     db.backup_hash_db()
     db.reset_hash_db()
@@ -147,7 +153,7 @@ def _generate_db(source, debug):
         result.append((current_file, True))
         db.add_hash(db.checksum(current_file), current_file)
         log.progress()
-    
+
     db.update_hash_db()
     log.progress('', True)
     result.write()
@@ -326,7 +332,7 @@ def _update(album, location, time, title, paths, debug):
             result.append((current_file, False))
 
     result.write()
-    
+
     if has_errors:
         sys.exit(1)
 
