@@ -69,9 +69,6 @@ def import_file(_file, destination, album_from_folder, trash, allow_duplicates, 
         send2trash(_file)
     elif delete:
         os.remove(_file)
-
-
-
     return dest_path or None
 
 
